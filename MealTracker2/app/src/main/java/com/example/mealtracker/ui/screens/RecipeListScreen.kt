@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,9 +34,7 @@ import com.example.mealtracker.ui.viewmodels.RecipeViewModelFactory
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeListScreen(
-    viewModel: RecipeViewModel = viewModel(
-        factory = RecipeViewModelFactory(LocalContext.current)
-    ),
+    viewModel: RecipeViewModel = viewModel(factory = RecipeViewModelFactory(LocalContext.current)),
     onAddRecipe: () -> Unit,
     onRecipeClick: (Long) -> Unit
 ) {
@@ -50,7 +50,7 @@ fun RecipeListScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "My Recipes",
+                        "My Recipes (${recipes.size})",
                         style = MaterialTheme.typography.headlineMedium
                     )
                 }
@@ -88,23 +88,38 @@ fun RecipeListScreen(
                 }
             }
 
-            // Simple placeholder for now
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    "Database connected!",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                Text(
-                    "Ready to add recipes",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            if (recipes.isEmpty()) {
+                // Empty state
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        "No recipes yet",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    Text(
+                        "Tap the + button to add your first recipe",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            } else {
+                // Recipe list
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(recipes) { recipe ->
+                        RecipeCard(
+                            recipe = recipe,
+                            onClick = { onRecipeClick(recipe.id) }
+                        )
+                    }
+                }
             }
         }
     }

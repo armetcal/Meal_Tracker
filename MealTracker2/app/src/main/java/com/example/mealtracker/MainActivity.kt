@@ -6,7 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.mealtracker.ui.screens.AddRecipeScreen
 import com.example.mealtracker.ui.screens.RecipeListScreen
 
 class MainActivity : ComponentActivity() {
@@ -18,14 +23,30 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RecipeListScreen(
-                        onAddRecipe = {
-                            // TODO: Navigate to add recipe screen
-                        },
-                        onRecipeClick = { recipeId ->
-                            // TODO: Navigate to recipe detail screen
+                    var currentScreen by remember { mutableStateOf("recipeList") }
+
+                    when (currentScreen) {
+                        "recipeList" -> {
+                            RecipeListScreen(
+                                onAddRecipe = {
+                                    currentScreen = "addRecipe"
+                                },
+                                onRecipeClick = { recipeId ->
+                                    // Will implement recipe details later
+                                }
+                            )
                         }
-                    )
+                        "addRecipe" -> {
+                            AddRecipeScreen(
+                                onBack = {
+                                    currentScreen = "recipeList"
+                                },
+                                onRecipeAdded = {
+                                    currentScreen = "recipeList"
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

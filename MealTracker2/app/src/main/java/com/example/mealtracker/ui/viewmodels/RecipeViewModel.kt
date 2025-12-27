@@ -13,12 +13,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class RecipeViewModel(context: Context) : ViewModel() {
     // Create repository inside ViewModel
     private val repository: RecipeRepository
+
+    // State for recipes
+    val allRecipes: Flow<List<Recipe>>
+
+    // State for error messages
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     init {
         val database = MacroDatabase.getDatabase(context)
@@ -27,16 +35,11 @@ class RecipeViewModel(context: Context) : ViewModel() {
             mealLogDao = database.mealLogDao(),
             dailyGoalDao = database.dailyGoalDao()
         )
-    }
 
-    // State for recipes
-    val allRecipes: Flow<List<Recipe>> = repository.getAllRecipes()
+        // Set up the flow
+        allRecipes = repository.getAllRecipes()
 
-    // State for error messages
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
-
-    init {
+        // Load initial data
         loadTodaysData()
     }
 
