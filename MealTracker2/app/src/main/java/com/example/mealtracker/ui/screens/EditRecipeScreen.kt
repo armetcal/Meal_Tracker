@@ -13,6 +13,7 @@ import com.example.mealtracker.ui.viewmodels.RecipeViewModel
 import com.example.mealtracker.ui.viewmodels.RecipeViewModelFactory
 import android.R
 import androidx.compose.runtime.collectAsState  // Using the compose version
+import androidx.compose.ui.Alignment  // ADD THIS IMPORT
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,38 +25,50 @@ fun EditRecipeScreen(
 ) {
     val recipes by viewModel.allRecipes.collectAsState(emptyList())
 
-    // Find the recipe from the current list
+    // Debug logging
+    LaunchedEffect(recipeId, recipes) {
+        println("EditRecipeScreen: recipeId=$recipeId, totalRecipes=${recipes.size}")
+        recipes.forEach { r ->
+            println("Recipe: id=${r.id}, name=${r.name}")
+        }
+        val foundRecipe = recipes.find { it.id == recipeId }
+        println("Found recipe: $foundRecipe")
+    }
+
     val recipe = remember(recipeId, recipes) {
         recipes.find { it.id == recipeId }
     }
 
-    // Use derivedStateOf to ensure the state updates when recipe changes
-    val recipeName by remember(recipe) {
-        derivedStateOf { recipe?.name ?: "" }
-    }
-    val protein by remember(recipe) {
-        derivedStateOf { recipe?.proteinPerServing?.toString() ?: "" }
-    }
-    val carbs by remember(recipe) {
-        derivedStateOf { recipe?.carbsPerServing?.toString() ?: "" }
-    }
-    val fat by remember(recipe) {
-        derivedStateOf { recipe?.fatPerServing?.toString() ?: "" }
-    }
-    val servingSize by remember(recipe) {
-        derivedStateOf { recipe?.servingSize ?: "" }
-    }
-
+    // Use mutable state for editing
+    var recipeName by remember { mutableStateOf("") }
+    var protein by remember { mutableStateOf("") }
+    var carbs by remember { mutableStateOf("") }
+    var fat by remember { mutableStateOf("") }
+    var servingSize by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Update the fields when the recipe loads
+    LaunchedEffect(recipe) {
+        if (recipe != null) {
+            recipeName = recipe.name
+            protein = recipe.proteinPerServing.toString()
+            carbs = recipe.carbsPerServing.toString()
+            fat = recipe.fatPerServing.toString()
+            servingSize = recipe.servingSize
+            println("Fields updated for recipe: $recipeName")
+        } else {
+            println("Recipe not found, keeping default values")
+        }
+    }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Edit Recipe") },
+                title = { Text("Edit Recipe ${if (recipe == null) "(Loading...)" else ""}") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            painterResource(R.drawable.ic_menu_revert),
+                            painterResource(android.R.drawable.ic_menu_revert),
                             contentDescription = "Back"
                         )
                     }
@@ -79,71 +92,80 @@ fun EditRecipeScreen(
                 )
             }
 
-            // Recipe name
-            OutlinedTextField(
-                value = recipeName,
-                onValueChange = {
-                    // We need to use local mutable state for editing
-                    // This will be handled differently - see below
-                },
-                label = { Text("Recipe Name") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                readOnly = recipe == null  // Make read-only until data loads
-            )
-
-            // Protein
-            OutlinedTextField(
-                value = protein,
-                onValueChange = { /* Handle change */ },
-                label = { Text("Protein (grams per serving)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                readOnly = recipe == null
-            )
-
-            // Carbs
-            OutlinedTextField(
-                value = carbs,
-                onValueChange = { /* Handle change */ },
-                label = { Text("Carbs (grams per serving)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                readOnly = recipe == null
-            )
-
-            // Fat
-            OutlinedTextField(
-                value = fat,
-                onValueChange = { /* Handle change */ },
-                label = { Text("Fat (grams per serving)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                readOnly = recipe == null
-            )
-
-            // Serving size
-            OutlinedTextField(
-                value = servingSize,
-                onValueChange = { /* Handle change */ },
-                label = { Text("Serving Size (e.g., '1 cup', '100g')") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                readOnly = recipe == null
-            )
-
-            // Show loading state
+            // Show loading state with more info
             if (recipe == null) {
-                Text(
-                    text = "Loading recipe...",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Loading recipe...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        text = "Recipe ID: $recipeId",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text(
+                        text = "Total recipes in database: ${recipes.size}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             } else {
+                // Recipe name
+                OutlinedTextField(
+                    value = recipeName,
+                    onValueChange = { recipeName = it },
+                    label = { Text("Recipe Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                // Protein
+                OutlinedTextField(
+                    value = protein,
+                    onValueChange = { protein = it },
+                    label = { Text("Protein (grams per serving)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                // Carbs
+                OutlinedTextField(
+                    value = carbs,
+                    onValueChange = { carbs = it },
+                    label = { Text("Carbs (grams per serving)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                // Fat
+                OutlinedTextField(
+                    value = fat,
+                    onValueChange = { fat = it },
+                    label = { Text("Fat (grams per serving)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                // Serving size
+                OutlinedTextField(
+                    value = servingSize,
+                    onValueChange = { servingSize = it },
+                    label = { Text("Serving Size (e.g., '1 cup', '100g')") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
                 // Update button
                 Button(
                     onClick = {
-                        // This will now work with the proper state
+                        if (recipeName.isBlank()) {
+                            errorMessage = "Please enter a recipe name"
+                            return@Button
+                        }
+
                         val updatedRecipe = recipe.copy(
                             name = recipeName,
                             proteinPerServing = protein.toDoubleOrNull() ?: 0.0,

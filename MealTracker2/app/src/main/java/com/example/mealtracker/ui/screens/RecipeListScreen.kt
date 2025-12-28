@@ -111,10 +111,16 @@ fun RecipeListScreen(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(recipes) { recipe ->
+                    items(recipes, key = { it.id ?: 0L }) { recipe ->  // Add key for better tracking
                         RecipeCard(
                             recipe = recipe,
-                            onEdit = { onEditRecipe(recipe.id) },
+                            onEdit = {
+                                // Ensure we're passing a valid ID
+                                val recipeId = recipe.id ?: 0L
+                                if (recipeId != 0L) {
+                                    onEditRecipe(recipeId)
+                                }
+                            },
                             onDelete = { viewModel.deleteRecipe(recipe) }
                         )
                     }

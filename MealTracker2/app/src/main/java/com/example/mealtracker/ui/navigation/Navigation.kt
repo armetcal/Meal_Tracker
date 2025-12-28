@@ -56,11 +56,13 @@ fun AppNavHost(
             arguments = listOf(navArgument("recipeId") { type = NavType.LongType })
         ) { backStackEntry ->
             val recipeId = backStackEntry.arguments?.getLong("recipeId") ?: 0L
+            println("Navigation: Editing recipe with ID: $recipeId")  // Debug logging
             EditRecipeScreen(
                 recipeId = recipeId,
                 onBack = { navController.popBackStack() },
                 onRecipeUpdated = { navController.popBackStack() }
             )
         }
+
     }
 }

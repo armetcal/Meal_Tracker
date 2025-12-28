@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import com.example.mealtracker.ui.components.MacroProgressBar  // Add this import
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,20 +32,19 @@ fun MealLogScreen(
 ) {
     val recipes by viewModel.allRecipes.collectAsState(emptyList())
     val mealLogs by viewModel.todayMealLogs.collectAsState(emptyList())
+    val allGoals by viewModel.allGoals.collectAsState(emptyList())
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    // Debug logging
-    LaunchedEffect(mealLogs) {
-        println("Current meal logs count: ${mealLogs.size}")
-        mealLogs.forEach { log ->
-            println("Meal Log: recipeId=${log.recipeId}, servings=${log.servingsConsumed}, date=${log.date}")
-        }
-    }
+    // Calculate today's totals
+    val todaysTotals = calculateTodaysTotals(mealLogs, recipes)
+
+    // Get today's goal (based on current day of week)
+    val todayGoal = getTodaysGoal(allGoals)
 
     var selectedRecipeId by remember { mutableStateOf<Long?>(null) }
     var servings by remember { mutableStateOf("1") }
 
-    // Get current date using Calendar for display
+    // Get current date using Calendar
     val currentDate = getCurrentDate()
 
     Scaffold(
@@ -53,7 +53,6 @@ fun MealLogScreen(
                 title = {
                     Text("Meal Log - $currentDate")
                 }
-                // No back button for home screen
             )
         }
     ) { paddingValues ->
@@ -73,7 +72,55 @@ fun MealLogScreen(
                 )
             }
 
-            // Log new meal section
+            // DAILY TOTALS SECTION
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        "Daily Progress",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    MacroProgressBar(
+                        label = "Protein",
+                        current = todaysTotals["protein"] ?: 0.0,
+                        goal = todayGoal.proteinGoal,
+                        unit = "g",
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    MacroProgressBar(
+                        label = "Carbs",
+                        current = todaysTotals["carbs"] ?: 0.0,
+                        goal = todayGoal.carbsGoal,
+                        unit = "g",
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    MacroProgressBar(
+                        label = "Fat",
+                        current = todaysTotals["fat"] ?: 0.0,
+                        goal = todayGoal.fatGoal,
+                        unit = "g",
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    MacroProgressBar(
+                        label = "Calories",
+                        current = todaysTotals["calories"] ?: 0.0,
+                        goal = todayGoal.calorieGoal,
+                        unit = "cal",
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                }
+            }
+
+            // Log new meal section - MAKE SURE THIS IS INCLUDED
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -136,11 +183,10 @@ fun MealLogScreen(
                         singleLine = true
                     )
 
-                    // Log button
+                    // Log button - MAKE SURE THIS IS INCLUDED
                     Button(
                         onClick = {
                             selectedRecipeId?.let { recipeId ->
-                                // Use the database date format (yyyy-MM-dd) for storage
                                 val databaseDate = getDatabaseDate()
                                 val newMealLog = MealLog(
                                     recipeId = recipeId,
@@ -196,6 +242,55 @@ fun MealLogScreen(
             }
         }
     }
+}
+
+// Helper function to calculate today's totals from meal logs
+private fun calculateTodaysTotals(mealLogs: List<MealLog>, recipes: List<Recipe>): Map<String, Double> {
+    var protein = 0.0
+    var carbs = 0.0
+    var fat = 0.0
+    var calories = 0.0
+
+    mealLogs.forEach { mealLog ->
+        val recipe = recipes.find { it.id == mealLog.recipeId }
+        recipe?.let {
+            protein += it.proteinPerServing * mealLog.servingsConsumed
+            carbs += it.carbsPerServing * mealLog.servingsConsumed
+            fat += it.fatPerServing * mealLog.servingsConsumed
+            calories += it.caloriesPerServing * mealLog.servingsConsumed
+        }
+    }
+
+    return mapOf(
+        "protein" to protein,
+        "carbs" to carbs,
+        "fat" to fat,
+        "calories" to calories
+    )
+}
+
+// Helper function to get today's goal
+private fun getTodaysGoal(allGoals: List<com.example.mealtracker.data.entities.DailyGoal>): com.example.mealtracker.data.entities.DailyGoal {
+    val calendar = Calendar.getInstance()
+    val dayOfWeek = when (calendar.get(Calendar.DAY_OF_WEEK)) {
+        Calendar.MONDAY -> "Monday"
+        Calendar.TUESDAY -> "Tuesday"
+        Calendar.WEDNESDAY -> "Wednesday"
+        Calendar.THURSDAY -> "Thursday"
+        Calendar.FRIDAY -> "Friday"
+        Calendar.SATURDAY -> "Saturday"
+        Calendar.SUNDAY -> "Sunday"
+        else -> "Monday"
+    }
+
+    // Find today's goal or use default if not set
+    return allGoals.find { it.dayOfWeek == dayOfWeek } ?:
+    com.example.mealtracker.data.entities.DailyGoal(
+        dayOfWeek = dayOfWeek,
+        proteinGoal = 150.0,
+        carbsGoal = 200.0,
+        fatGoal = 50.0
+    )
 }
 
 // Helper function for database storage format (yyyy-MM-dd)

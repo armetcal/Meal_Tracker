@@ -179,4 +179,17 @@ class RecipeViewModel(
     }
     */
 
+    // Add this method to your RecipeViewModel class
+    fun getTodaysTotals(): Map<String, Double> {
+        // This will be calculated from the meal logs
+        // For now, we'll return a placeholder - we'll implement the actual calculation next
+        return mapOf(
+            "protein" to 0.0,
+            "carbs" to 0.0,
+            "fat" to 0.0,
+            "calories" to 0.0
+        )
+    }
+
+
 }
