@@ -1,76 +1,37 @@
 package com.example.mealtracker.data.repository
 
-import com.example.mealtracker.data.daos.RecipeDao
-import com.example.mealtracker.data.daos.MealLogDao
 import com.example.mealtracker.data.daos.DailyGoalDao
-import com.example.mealtracker.data.entities.Recipe
+import com.example.mealtracker.data.daos.MealLogDao
+import com.example.mealtracker.data.daos.RecipeDao
 import com.example.mealtracker.data.entities.DailyGoal
 import com.example.mealtracker.data.entities.MealLog
+import com.example.mealtracker.data.entities.Recipe
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class RecipeRepository(
     private val recipeDao: RecipeDao,
-    private val mealLogDao: MealLogDao,
-    private val dailyGoalDao: DailyGoalDao
+    private val dailyGoalDao: DailyGoalDao,
+    private val mealLogDao: MealLogDao
 ) {
-
-    // Recipe operations
-    suspend fun insertRecipe(recipe: Recipe): Long = recipeDao.insert(recipe)
-
+    // Recipe methods
+    suspend fun insertRecipe(recipe: Recipe) = recipeDao.insert(recipe)
     suspend fun updateRecipe(recipe: Recipe) = recipeDao.update(recipe)
-
     suspend fun deleteRecipe(recipe: Recipe) = recipeDao.delete(recipe)
-
     fun getAllRecipes(): Flow<List<Recipe>> = recipeDao.getAllRecipes()
-
     suspend fun getRecipeById(id: Long): Recipe? = recipeDao.getRecipeById(id)
 
-    fun searchRecipes(query: String): Flow<List<Recipe>> = recipeDao.searchRecipes(query)
+    // DailyGoal methods
+    suspend fun insertGoal(goal: DailyGoal) = dailyGoalDao.insert(goal)
+    suspend fun updateGoal(goal: DailyGoal) = dailyGoalDao.update(goal)
+    suspend fun deleteGoal(goal: DailyGoal) = dailyGoalDao.delete(goal)
+    fun getAllGoals(): Flow<List<DailyGoal>> = dailyGoalDao.getAllGoals()
+    fun getGoalForDay(dayOfWeek: String): Flow<DailyGoal?> = dailyGoalDao.getGoalForDay(dayOfWeek)
 
-    // Daily Goal operations
-    suspend fun setDailyGoal(day: String, protein: Double, carbs: Double, fat: Double) {
-        val goal = DailyGoal(day, protein, carbs, fat)
-        dailyGoalDao.insertOrUpdate(goal)
-    }
-
-    suspend fun getDailyGoal(day: String): DailyGoal? = dailyGoalDao.getGoalForDay(day)
-
-    // Meal Log operations
-    suspend fun logMeal(recipeId: Long, servings: Double, date: String = getTodayDate()): Long {
-        val log = MealLog(recipeId = recipeId, servingsConsumed = servings, date = date)
-        return mealLogDao.insert(log)
-    }
-
-    suspend fun deleteMealLog(log: MealLog) = mealLogDao.delete(log)
-
-    fun getMealLogsForDate(date: String): Flow<List<MealLog>> = mealLogDao.getLogsForDate(date)
-
-    // Helper function to get today's date in "YYYY-MM-DD" format
-    private fun getTodayDate(): String {
-        return LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-    }
-
-    // Advanced: Calculate today's macro totals
-    suspend fun getTodaysMacroTotals(): Triple<Double, Double, Double> {
-        val today = getTodayDate()
-        val logs = mealLogDao.getLogsForDate(today)
-        var totalProtein = 0.0
-        var totalCarbs = 0.0
-        var totalFat = 0.0
-
-        logs.collect { mealLogs ->
-            mealLogs.forEach { log ->
-                val recipe = recipeDao.getRecipeById(log.recipeId)
-                recipe?.let {
-                    totalProtein += it.proteinPerServing * log.servingsConsumed
-                    totalCarbs += it.carbsPerServing * log.servingsConsumed
-                    totalFat += it.fatPerServing * log.servingsConsumed
-                }
-            }
-        }
-
-        return Triple(totalProtein, totalCarbs, totalFat)
-    }
+    // MealLog methods - CHANGE TO ACCEPT STRING
+    suspend fun insertMealLog(mealLog: MealLog) = mealLogDao.insert(mealLog)
+    suspend fun updateMealLog(mealLog: MealLog) = mealLogDao.update(mealLog)
+    suspend fun deleteMealLog(mealLog: MealLog) = mealLogDao.delete(mealLog)
+    fun getMealLogsForDate(date: String): Flow<List<MealLog>> =  // Changed parameter to String
+        mealLogDao.getMealLogsForDate(date)
+    fun getAllMealLogs(): Flow<List<MealLog>> = mealLogDao.getAllMealLogs()
 }

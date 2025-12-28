@@ -2,19 +2,15 @@ package com.example.mealtracker.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row  // ADD THIS IMPORT
+import androidx.compose.foundation.layout.Spacer  // ADD THIS IMPORT
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width  // ADD THIS IMPORT
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,9 +30,11 @@ import com.example.mealtracker.ui.viewmodels.RecipeViewModelFactory
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeListScreen(
-    viewModel: RecipeViewModel = viewModel(factory = RecipeViewModelFactory(LocalContext.current)),
+    viewModel: RecipeViewModel = viewModel(
+        factory = RecipeViewModelFactory(LocalContext.current)
+    ),
     onAddRecipe: () -> Unit,
-    onRecipeClick: (Long) -> Unit
+    onEditRecipe: (Long) -> Unit
 ) {
     val recipes by viewModel.allRecipes.collectAsState(initial = emptyList())
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -116,7 +114,8 @@ fun RecipeListScreen(
                     items(recipes) { recipe ->
                         RecipeCard(
                             recipe = recipe,
-                            onClick = { onRecipeClick(recipe.id) }
+                            onEdit = { onEditRecipe(recipe.id) },
+                            onDelete = { viewModel.deleteRecipe(recipe) }
                         )
                     }
                 }
@@ -126,9 +125,12 @@ fun RecipeListScreen(
 }
 
 @Composable
-fun RecipeCard(recipe: Recipe, onClick: () -> Unit) {
+fun RecipeCard(
+    recipe: Recipe,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
     Card(
-        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
@@ -156,6 +158,27 @@ fun RecipeCard(recipe: Recipe, onClick: () -> Unit) {
                 style = MaterialTheme.typography.bodySmall,
                 fontSize = 12.sp
             )
+
+            // Add Edit and Delete buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = onEdit) {
+                    Text("Edit")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                TextButton(
+                    onClick = onDelete,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            }
         }
     }
 }
