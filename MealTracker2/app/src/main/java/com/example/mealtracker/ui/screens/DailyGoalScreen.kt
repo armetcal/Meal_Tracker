@@ -31,15 +31,7 @@ fun DailyGoalScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Daily Goals") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            painterResource(R.drawable.ic_menu_revert),
-                            contentDescription = "Back"
-                        )
-                    }
-                }
+                title = { Text("Daily Goals") }
             )
         }
     ) { paddingValues ->

@@ -190,6 +190,6 @@ class RecipeViewModel(
             "calories" to 0.0
         )
     }
-
+    fun getAllMealLogs(): Flow<List<MealLog>> = repository.getAllMealLogs()
 
 }

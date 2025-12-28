@@ -15,6 +15,7 @@ sealed class Screen(val route: String) {
     object AddRecipe : Screen("add_recipe")
     object DailyGoals : Screen("daily_goals")
     object EditRecipe : Screen("edit_recipe")
+    object Calendar : Screen("calendar")
 }
 
 @Composable
@@ -61,6 +62,12 @@ fun AppNavHost(
                 recipeId = recipeId,
                 onBack = { navController.popBackStack() },
                 onRecipeUpdated = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Calendar.route) {
+            CalendarScreen(
+                onBack = { navController.popBackStack() }
             )
         }
 

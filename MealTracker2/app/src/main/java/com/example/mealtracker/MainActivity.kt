@@ -46,9 +46,8 @@ fun AppBottomNavigation(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    // Only show bottom nav on main screens
     val showBottomNav = when (currentDestination?.route) {
-        Screen.MealLog.route, Screen.RecipeList.route, Screen.DailyGoals.route -> true
+        Screen.MealLog.route, Screen.RecipeList.route, Screen.DailyGoals.route, Screen.Calendar.route -> true
         else -> false
     }
 
@@ -57,7 +56,8 @@ fun AppBottomNavigation(navController: NavHostController) {
             val items = listOf(
                 Screen.MealLog to "Log Meals",
                 Screen.RecipeList to "Recipes",
-                Screen.DailyGoals to "Goals"
+                Screen.DailyGoals to "Goals",
+                Screen.Calendar to "Calendar"
             )
 
             items.forEach { (screen, title) ->
@@ -68,13 +68,10 @@ fun AppBottomNavigation(navController: NavHostController) {
                     onClick = {
                         if (!selected) {
                             navController.navigate(screen.route) {
-                                // Pop up to the start destination to avoid building up a large stack
                                 popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
-                                // Avoid multiple copies of the same destination
                                 launchSingleTop = true
-                                // Restore state when re-selecting a previously selected item
                                 restoreState = true
                             }
                         }
@@ -86,6 +83,7 @@ fun AppBottomNavigation(navController: NavHostController) {
                                     Screen.MealLog -> R.drawable.ic_menu_agenda
                                     Screen.RecipeList -> R.drawable.ic_menu_edit
                                     Screen.DailyGoals -> R.drawable.ic_menu_my_calendar
+                                    Screen.Calendar -> R.drawable.ic_menu_month  // Calendar icon
                                     else -> R.drawable.ic_menu_help
                                 }
                             ),
@@ -98,3 +96,4 @@ fun AppBottomNavigation(navController: NavHostController) {
         }
     }
 }
+
