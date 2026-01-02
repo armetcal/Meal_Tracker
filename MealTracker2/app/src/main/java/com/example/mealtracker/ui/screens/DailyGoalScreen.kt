@@ -60,7 +60,6 @@ fun DailyGoalScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(daysOfWeek) { day ->
-                    // Use key to ensure recomposition when goals change
                     key(day) {
                         DailyGoalCard(
                             day = day,
@@ -94,17 +93,17 @@ fun DailyGoalCard(
     goal: DailyGoal?,
     onSaveGoal: (Double, Double, Double) -> Unit
 ) {
-    // Use derivedStateOf to ensure the text fields update when the goal changes
+    // Ensure the text fields update when the goal changes
     val proteinState = remember(goal) { derivedStateOf { goal?.proteinGoal?.toString() ?: "" } }
     val carbsState = remember(goal) { derivedStateOf { goal?.carbsGoal?.toString() ?: "" } }
     val fatState = remember(goal) { derivedStateOf { goal?.fatGoal?.toString() ?: "" } }
 
-    // Local mutable state for editing
+    // For editing
     var protein by remember { mutableStateOf(proteinState.value) }
     var carbs by remember { mutableStateOf(carbsState.value) }
     var fat by remember { mutableStateOf(fatState.value) }
 
-    // Update local state when the goal changes
+    // Update things when the goal changes
     LaunchedEffect(goal) {
         protein = goal?.proteinGoal?.toString() ?: ""
         carbs = goal?.carbsGoal?.toString() ?: ""

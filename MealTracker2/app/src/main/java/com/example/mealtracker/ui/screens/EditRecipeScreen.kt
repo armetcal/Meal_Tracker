@@ -39,7 +39,7 @@ fun EditRecipeScreen(
         recipes.find { it.id == recipeId }
     }
 
-    // Use mutable state for editing
+    // For editing
     var recipeName by remember { mutableStateOf("") }
     var protein by remember { mutableStateOf("") }
     var carbs by remember { mutableStateOf("") }
@@ -47,7 +47,7 @@ fun EditRecipeScreen(
     var servingSize by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Update the fields when the recipe loads
+    // Update when the recipe loads
     LaunchedEffect(recipe) {
         if (recipe != null) {
             recipeName = recipe.name
@@ -92,7 +92,6 @@ fun EditRecipeScreen(
                 )
             }
 
-            // Show loading state with more info
             if (recipe == null) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),

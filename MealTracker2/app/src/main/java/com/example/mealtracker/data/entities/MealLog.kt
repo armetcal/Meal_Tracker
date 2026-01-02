@@ -9,6 +9,6 @@ data class MealLog(
     val id: Long = 0,
     val recipeId: Long,
     val servingsConsumed: Double,
-    val date: String, // Format: "2024-01-15" for easy querying
+    val date: String, // Format: "2024-01-15"
     val timestamp: Long = System.currentTimeMillis()
 )

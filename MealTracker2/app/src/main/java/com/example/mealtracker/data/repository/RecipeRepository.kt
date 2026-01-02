@@ -27,11 +27,11 @@ class RecipeRepository(
     fun getAllGoals(): Flow<List<DailyGoal>> = dailyGoalDao.getAllGoals()
     fun getGoalForDay(dayOfWeek: String): Flow<DailyGoal?> = dailyGoalDao.getGoalForDay(dayOfWeek)
 
-    // MealLog methods - CHANGE TO ACCEPT STRING
+    // MealLog methods
     suspend fun insertMealLog(mealLog: MealLog) = mealLogDao.insert(mealLog)
     suspend fun updateMealLog(mealLog: MealLog) = mealLogDao.update(mealLog)
     suspend fun deleteMealLog(mealLog: MealLog) = mealLogDao.delete(mealLog)
-    fun getMealLogsForDate(date: String): Flow<List<MealLog>> =  // Changed parameter to String
+    fun getMealLogsForDate(date: String): Flow<List<MealLog>> =
         mealLogDao.getMealLogsForDate(date)
     fun getAllMealLogs(): Flow<List<MealLog>> = mealLogDao.getAllMealLogs()
 }

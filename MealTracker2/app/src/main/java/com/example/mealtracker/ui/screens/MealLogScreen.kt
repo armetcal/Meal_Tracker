@@ -120,7 +120,7 @@ fun MealLogScreen(
                 }
             }
 
-            // Log new meal section - MAKE SURE THIS IS INCLUDED
+            // Log new meal section
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -183,7 +183,7 @@ fun MealLogScreen(
                         singleLine = true
                     )
 
-                    // Log button - MAKE SURE THIS IS INCLUDED
+                    // Log button
                     Button(
                         onClick = {
                             selectedRecipeId?.let { recipeId ->
@@ -293,14 +293,14 @@ private fun getTodaysGoal(allGoals: List<com.example.mealtracker.data.entities.D
     )
 }
 
-// Helper function for database storage format (yyyy-MM-dd)
+// Helper function for database storage format
 private fun getDatabaseDate(): String {
     val calendar = Calendar.getInstance()
     val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
     return dateFormat.format(calendar.time)
 }
 
-// Helper function to format date for display (MMM d)
+// format date
 private fun getCurrentDate(): String {
     val calendar = Calendar.getInstance()
     val dateFormat = java.text.SimpleDateFormat("MMM d", java.util.Locale.getDefault())

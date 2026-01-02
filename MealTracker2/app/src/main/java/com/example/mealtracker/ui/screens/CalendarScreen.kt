@@ -43,7 +43,7 @@ fun CalendarScreen(
     // Current month and year
     var currentMonth by remember { mutableStateOf(Calendar.getInstance()) }
 
-    // Debug logging to verify data is loading
+    // Verify data is loading
     LaunchedEffect(allMealLogs) {
         println("CalendarScreen: Loaded ${allMealLogs.size} meal logs")
         allMealLogs.take(5).forEach { log ->
@@ -142,8 +142,6 @@ fun CalendarScreen(
                 recipes = recipes,
                 goals = allGoals,
                 onDateSelected = { date ->
-                    // For now, just show a simple message
-                    // You could implement a date detail screen later
                     println("Selected date: $date")
                 }
             )
@@ -255,7 +253,7 @@ fun CalendarDay(
         Color.Transparent
     }
 
-    // Color based on progress (green=good, yellow=medium, red=low)
+    // Color based on progress
     val progressColor = when {
         progress >= 0.8 -> Color(0xFF4CAF50) // Green
         progress >= 0.5 -> Color(0xFFFF9800) // Orange
@@ -269,7 +267,7 @@ fun CalendarDay(
             .background(backgroundColor, MaterialTheme.shapes.small)
             .clickable(
                 onClick = onClick,
-                indication = null,  // Add this to fix the crash
+                indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             ),
         contentAlignment = Alignment.Center
@@ -284,7 +282,7 @@ fun CalendarDay(
                 fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
             )
 
-            // Progress indicator (small circle)
+            // Progress indicator
             Box(
                 modifier = Modifier
                     .size(8.dp)
@@ -294,7 +292,7 @@ fun CalendarDay(
     }
 }
 
-// Helper function to calculate daily progress (0.0 to 1.0)
+// Calculate daily progress (0.0 to 1.0)
 private fun calculateDailyProgress(
     mealLogs: List<MealLog>,
     recipes: List<Recipe>,
@@ -326,7 +324,7 @@ private fun calculateDailyProgress(
     val caloriesGoal = goal.calorieGoal
     val caloriesActual = totals["calories"] ?: 0.0
 
-    // Progress as percentage of goal, capped at 100%
+    // Progress as % of goal, capped at 100%
     return (caloriesActual / caloriesGoal).coerceIn(0.0, 1.0)
 }
 
@@ -337,7 +335,6 @@ private fun isToday(date: Calendar): Boolean {
             date.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)
 }
 
-// Reuse your existing function
 private fun calculateTodaysTotals(mealLogs: List<MealLog>, recipes: List<Recipe>): Map<String, Double> {
     var protein = 0.0
     var carbs = 0.0

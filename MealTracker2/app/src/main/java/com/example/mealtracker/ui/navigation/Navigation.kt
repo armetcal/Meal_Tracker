@@ -30,7 +30,7 @@ fun AppNavHost(
     ) {
         composable(Screen.MealLog.route) {
             MealLogScreen(
-                onBack = { /* No back needed on home screen */ }
+                onBack = {  } // back button removed, not sure if deleting this will break things
             )
         }
         composable(Screen.RecipeList.route) {

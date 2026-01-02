@@ -49,7 +49,7 @@ fun AddRecipeScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Error message
+
             errorMessage?.let { message ->
                 Text(
                     text = message,
@@ -128,7 +128,7 @@ fun AddRecipeScreen(
                 Text("Add Recipe")
             }
 
-            // Quick test button
+            // Quick-add recipe for testing
             Button(
                 onClick = {
                     val newRecipe = Recipe(

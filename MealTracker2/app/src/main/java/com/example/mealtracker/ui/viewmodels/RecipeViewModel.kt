@@ -27,7 +27,7 @@ class RecipeViewModel(
     // State for daily goals
     val allGoals: Flow<List<DailyGoal>> = repository.getAllGoals()
 
-    // State for today's meal logs - use String date
+    // State for today's meal logs
     val todayMealLogs: Flow<List<MealLog>> = repository.getMealLogsForDate(getCurrentDate())
 
     // State for error messages
@@ -35,11 +35,11 @@ class RecipeViewModel(
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     init {
-        // Initialize default goals if app is starting fresh
+        // Initialize default goals if app is restarting
         initializeDefaultGoals()
     }
 
-    // Recipe operations (keep existing)
+    // Recipe operations
     fun insertRecipe(recipe: Recipe) {
         viewModelScope.launch {
             try {
@@ -73,7 +73,7 @@ class RecipeViewModel(
         }
     }
 
-    // Daily Goal operations (keep existing)
+    // Daily Goal operations
     fun insertGoal(goal: DailyGoal) {
         viewModelScope.launch {
             try {
@@ -96,7 +96,7 @@ class RecipeViewModel(
         }
     }
 
-    // Meal Log operations (keep existing)
+    // Meal Log operations
     fun insertMealLog(mealLog: MealLog) {
         viewModelScope.launch {
             try {
@@ -119,12 +119,12 @@ class RecipeViewModel(
         }
     }
 
-    // Get goal for specific day
+    // Get goal for specific day - should be deprecated now, see below
     fun getGoalForDay(dayOfWeek: String): Flow<DailyGoal?> {
         return repository.getGoalForDay(dayOfWeek)
     }
 
-    // Get meal logs for specific date - now uses String (FIXED)
+    // Get meal logs for specific date
     fun getMealLogsForDate(date: String): Flow<List<MealLog>> {
         return repository.getMealLogsForDate(date)
     }
@@ -135,14 +135,12 @@ class RecipeViewModel(
             try {
                 val daysOfWeek = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 
-                // Get the current goals once
                 val currentGoals = repository.getAllGoals()
 
-                // Use first() to get the current list once
                 val goals = currentGoals.first()
 
                 if (goals.isEmpty()) {
-                    // Create default goals (150g protein, 200g carbs, 50g fat)
+                    // Create default goals
                     daysOfWeek.forEach { day ->
                         repository.insertGoal(DailyGoal(
                             dayOfWeek = day,
@@ -158,7 +156,7 @@ class RecipeViewModel(
         }
     }
 
-    // Helper function to get current date as string in "yyyy-MM-dd" format
+    // Helper function to get current date
     private fun getCurrentDate(): String {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -170,19 +168,7 @@ class RecipeViewModel(
         _errorMessage.value = null
     }
 
-    // Remove or comment out this method for now - we'll implement it properly later
-    /*
-    fun getRecipeById(id: Long): Flow<Recipe?> {
-        // This would need proper implementation in your repository
-        // For now, filter from the existing flow
-        return allRecipes.map { recipes -> recipes.find { it.id == id } }
-    }
-    */
-
-    // Add this method to your RecipeViewModel class
     fun getTodaysTotals(): Map<String, Double> {
-        // This will be calculated from the meal logs
-        // For now, we'll return a placeholder - we'll implement the actual calculation next
         return mapOf(
             "protein" to 0.0,
             "carbs" to 0.0,

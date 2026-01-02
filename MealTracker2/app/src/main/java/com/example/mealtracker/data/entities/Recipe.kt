@@ -11,8 +11,8 @@ data class Recipe(
     val proteinPerServing: Double,
     val carbsPerServing: Double,
     val fatPerServing: Double,
-    val servingSize: String, // e.g., "1 cup", "100g", "1 serving"
-    val imagePath: String? = null, // Path to optional photo
+    val servingSize: String,
+    val imagePath: String? = null, // Path to optional photo - finish later
     val createdAt: Long = System.currentTimeMillis()
 ) {
     val caloriesPerServing: Double
